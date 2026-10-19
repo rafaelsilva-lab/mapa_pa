@@ -140,16 +140,15 @@ input[type="time"].inp::-webkit-datetime-edit{padding:0}
   <div id="days"></div>
 
   <details id="pac">
-    <summary>Dados do paciente</summary>
+    <summary>Dados</summary>
     <div class="dbody">
-      <label class="f">Paciente<input class="inp txt" id="p-nome" autocomplete="off"></label>
+      <label class="f">Nome<input class="inp txt" id="p-nome" autocomplete="off"></label>
       <div class="grid2">
         <label class="f">Idade<input class="inp" id="p-idade" inputmode="numeric"></label>
         <label class="f">Braço usado<select class="inp txt" id="p-braco"><option value=""></option><option>Direito</option><option>Esquerdo</option></select></label>
       </div>
       <label class="f">Aparelho (marca/modelo)<input class="inp txt" id="p-aparelho" autocomplete="off"></label>
       <label class="f">Circunferência do braço / manguito<input class="inp txt" id="p-manguito" autocomplete="off"></label>
-      <label class="f">Medicação anti-hipertensiva (nome, dose, horário)<textarea class="inp txt" id="p-med" rows="2"></textarea></label>
     </div>
   </details>
 
@@ -158,7 +157,7 @@ input[type="time"].inp::-webkit-datetime-edit{padding:0}
     <div class="dbody">
       <ol>
         <li>Aparelho automático de braço, validado, com manguito do tamanho certo. Não usar aparelho de pulso.</li>
-        <li><b>Manhã:</b> ao acordar, após urinar, antes do café e da medicação. <b>Noite:</b> antes do jantar.</li>
+        <li><b>Manhã:</b> ao acordar, após urinar e antes do café. <b>Noite:</b> antes do jantar.</li>
         <li>Nos 30 minutos antes: sem café, cigarro, álcool ou exercício.</li>
         <li>Sentado, costas apoiadas, pés no chão, pernas descruzadas, braço apoiado na altura do coração.</li>
         <li>Repousar 5 minutos em silêncio e não conversar durante a medida.</li>
@@ -213,9 +212,9 @@ input[type="time"].inp::-webkit-datetime-edit{padding:0}
     {d:24,w:"Sáb",full:"Sábado, 24/10",iso:"2026-10-24"},
     {d:25,w:"Dom",full:"Domingo, 25/10",iso:"2026-10-25"}
   ];
-  var PER=[{k:"m",name:"Manhã",when:"Ao acordar, antes do café e da medicação"},{k:"n",name:"Noite",when:"Antes do jantar"}];
+  var PER=[{k:"m",name:"Manhã",when:"Ao acordar, antes do café"},{k:"n",name:"Noite",when:"Antes do jantar"}];
   var FIELDS=["hora","s1","d1","s2","d2","fc","obs"];
-  var PFIELDS=["nome","idade","braco","aparelho","manguito","med"];
+  var PFIELDS=["nome","idade","braco","aparelho","manguito"];
   var LS="mapa-pa-2026-10-19";
   var state={p:{},r:{}};
 
@@ -245,8 +244,7 @@ input[type="time"].inp::-webkit-datetime-edit{padding:0}
         '<div class="row"><span class="lbl"></span><span class="f" style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">PAS</span><span class="f" style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">PAD</span></div>'+
         '<div class="row"><span class="lbl">1ª medida</span><input class="inp" inputmode="numeric" aria-label="1ª medida PAS" id="'+id("s1")+'" placeholder="120"><input class="inp" inputmode="numeric" aria-label="1ª medida PAD" id="'+id("d1")+'" placeholder="80"></div>'+
         '<div class="row"><span class="lbl">2ª medida<br><small>após 1 min</small></span><input class="inp" inputmode="numeric" aria-label="2ª medida PAS" id="'+id("s2")+'" placeholder="120"><input class="inp" inputmode="numeric" aria-label="2ª medida PAD" id="'+id("d2")+'" placeholder="80"></div>'+
-        '<label class="chk"><input type="checkbox" id="'+id("med")+'"> Tomou a medicação depois da medida</label>'+
-        '<label class="f">Observações<textarea class="inp txt" rows="2" id="'+id("obs")+'" placeholder="Sintomas, dor, estresse, esqueceu remédio…"></textarea></label>'+
+        '<label class="f">Observações<textarea class="inp txt" rows="2" id="'+id("obs")+'" placeholder="Sintomas, dor, estresse, noite mal dormida…"></textarea></label>'+
         '<div class="alert" id="alert-'+k+'" hidden>PA muito elevada (≥180/120). Repita após 5 minutos de repouso e comunique a equipe. Com sintomas, ligue 192.</div>'+
         '</div>';
     });
@@ -259,8 +257,6 @@ input[type="time"].inp::-webkit-datetime-edit{padding:0}
         var el=$("r-"+k+"-"+f);
         el.addEventListener("input",function(){rec(k)[f]=el.value;changed(k)});
       });
-      var c=$("r-"+k+"-med");
-      c.addEventListener("change",function(){rec(k).med=c.checked;changed(k)});
     });
   });
   PFIELDS.forEach(function(f){
@@ -285,7 +281,6 @@ input[type="time"].inp::-webkit-datetime-edit{padding:0}
     DAYS.forEach(function(D){PER.forEach(function(P){
       var k=D.d+P.k, r=state.r[k]||{};
       FIELDS.forEach(function(f){var el=$("r-"+k+"-"+f);if(document.activeElement!==el)el.value=r[f]||""});
-      $("r-"+k+"-med").checked=!!r.med;
     })});
     compute();
   }
@@ -343,12 +338,11 @@ input[type="time"].inp::-webkit-datetime-edit{padding:0}
     L.push("Paciente: "+(p.nome||"-")+(p.idade?" | Idade: "+p.idade:"")+(p.braco?" | Braço: "+p.braco:""));
     if(p.aparelho) L.push("Aparelho: "+p.aparelho);
     if(p.manguito) L.push("Manguito: "+p.manguito);
-    if(p.med) L.push("Medicação: "+p.med);
     L.push("");
     DAYS.forEach(function(D){PER.forEach(function(P){
       var r=state.r[D.d+P.k]||{};
       var a=(r.s1||"-")+"/"+(r.d1||"-"), b=(r.s2||"-")+"/"+(r.d2||"-");
-      L.push(D.d+"/10 "+P.name+(r.hora?" "+r.hora:"")+": "+a+" e "+b+(r.fc?" | FC "+r.fc:"")+(r.med?" | med. após":"")+(r.obs?" | "+r.obs:"")+(D.skip?" (descartado)":""));
+      L.push(D.d+"/10 "+P.name+(r.hora?" "+r.hora:"")+": "+a+" e "+b+(r.fc?" | FC "+r.fc:"")+(r.obs?" | "+r.obs:"")+(D.skip?" (descartado)":""));
     })});
     L.push("");
     L.push("Média 20–25/10: "+$("avg").textContent+" mmHg ("+$("cnt").textContent+" medidas)");
