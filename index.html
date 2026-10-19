@@ -71,13 +71,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
 .card-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .card-h .when{font-size:.8rem;color:var(--muted)}
-.row{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:end}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end}
 .row .lbl{font-size:.8rem;color:var(--muted);align-self:center;min-width:64px}
 label.f{display:flex;flex-direction:column;gap:3px;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:0}
 .inp{font:inherit;font-size:1.15rem;font-family:var(--font-num);font-weight:600;font-variant-numeric:tabular-nums;width:100%;min-width:0;padding:10px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);box-sizing:border-box}
 .inp.txt{font-family:var(--font-body);font-weight:400;font-size:1rem}
 textarea.inp{resize:vertical;min-height:44px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end}
 .chk{display:flex;align-items:center;gap:8px;font-size:.9rem;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);cursor:pointer}
 .chk input{width:20px;height:20px;accent-color:var(--accent)}
 .alert{font-size:.85rem;border-radius:10px;padding:8px 12px;background:var(--crit-soft);color:var(--crit)}
@@ -99,6 +99,13 @@ table.ref th{color:var(--muted);font-weight:400;font-size:.75rem;text-transform:
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 .btn.danger{color:var(--crit);border-color:var(--crit);background:transparent}
 .btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.inp{-webkit-appearance:none;appearance:none;display:block;height:48px;margin:0}
+textarea.inp{height:auto}
+select.inp{background-image:none}
+input[type="time"].inp{min-width:0;max-width:100%;line-height:26px;text-align:left}
+input[type="time"].inp::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type="time"].inp::-webkit-datetime-edit{padding:0}
+.chk input{-webkit-appearance:auto;appearance:auto}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
