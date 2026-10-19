@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d5c9e">
+<title>Mapa de PA 19–25/10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: uma coluna para celular — resumo da média no topo, abas dos 7 dias, dois cartões (manhã/noite) por dia */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#16202c; --muted:#5a6676; --line:#d6dce4;
+  --accent:#1d5c9e; --accent-soft:#e3edf8;
+  --ok:#1f7a4d; --ok-soft:#e2f3ea; --warn:#9a5b00; --warn-soft:#fbefd9; --crit:#b3261e; --crit-soft:#fbe5e3;
+  --font-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-num:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f151c; --surface:#18212b; --ink:#e8edf3; --muted:#9aa7b6; --line:#2b3745;
+  --accent:#7fb2ea; --accent-soft:#1d2d40;
+  --ok:#6fcf9c; --ok-soft:#173226; --warn:#f0b75a; --warn-soft:#352812; --crit:#ff8a80; --crit-soft:#3a1a18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --surface:#18212b; --ink:#e8edf3; --muted:#9aa7b6; --line:#2b3745;
+  --accent:#7fb2ea; --accent-soft:#1d2d40;
+  --ok:#6fcf9c; --ok-soft:#173226; --warn:#f0b75a; --warn-soft:#352812; --crit:#ff8a80; --crit-soft:#3a1a18; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px);background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:1.35rem;margin:0;text-wrap:balance}
+h2{font-size:1rem;margin:0}
+.sub{color:var(--muted);font-size:.9rem;margin:2px 0 0}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.save{font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);white-space:nowrap;padding:4px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.save.ok{color:var(--ok)} .save.err{color:var(--crit)}
+
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.big{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.big .val{font-family:var(--font-num);font-weight:700;font-size:3rem;line-height:1;font-variant-numeric:tabular-nums}
+.big .unit{color:var(--muted);font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.stat .k{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat .v{font-family:var(--font-num);font-weight:600;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.verdict{border-radius:10px;padding:10px 12px;font-size:.9rem}
+.verdict.none{background:var(--bg);color:var(--muted)}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.verdict.warn{background:var(--warn-soft);color:var(--warn)}
+.verdict.crit{background:var(--crit-soft);color:var(--crit)}
+.bar{height:6px;background:var(--bg);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+
+.tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:6px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tab{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 0 5px;display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;cursor:pointer;position:relative}
+.tab .dw{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.tab .dn{font-family:var(--font-num);font-weight:700;font-size:1.25rem;line-height:1}
+.tab .dots{display:flex;gap:3px;height:6px}
+.tab .dots b{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.tab .dots b.on{background:var(--accent)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tab[aria-selected="true"] .dw{color:var(--surface)}
+.tab[aria-selected="true"] .dots b{background:color-mix(in srgb,var(--surface) 40%,transparent)}
+.tab[aria-selected="true"] .dots b.on{background:var(--surface)}
+.tab:focus-visible,.inp:focus-visible,.chk:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.day{display:flex;flex-direction:column;gap:12px}
+.note{font-size:.85rem;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card-h .when{font-size:.8rem;color:var(--muted)}
+.row{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:end}
+.row .lbl{font-size:.8rem;color:var(--muted);align-self:center;min-width:64px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:0}
+.inp{font:inherit;font-size:1.15rem;font-family:var(--font-num);font-weight:600;font-variant-numeric:tabular-nums;width:100%;min-width:0;padding:10px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);box-sizing:border-box}
+.inp.txt{font-family:var(--font-body);font-weight:400;font-size:1rem}
+textarea.inp{resize:vertical;min-height:44px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chk{display:flex;align-items:center;gap:8px;font-size:.9rem;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.alert{font-size:.85rem;border-radius:10px;padding:8px 12px;background:var(--crit-soft);color:var(--crit)}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+summary{padding:14px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+summary::after{content:"+";color:var(--muted)}
+details[open] summary::after{content:"–"}
+.dbody{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px;font-size:.92rem}
+.dbody ol,.dbody ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+table.ref{width:100%;border-collapse:collapse;font-size:.85rem}
+table.ref th,table.ref td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}
+table.ref th{color:var(--muted);font-weight:400;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+.tw{overflow-x:auto}
+.foot{font-size:.8rem;color:var(--muted)}
+.foot a{color:var(--accent)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{appearance:none;font:inherit;font-size:.92rem;font-weight:700;padding:12px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;text-align:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.danger{color:var(--crit);border-color:var(--crit);background:transparent}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Mapa de PA</h1>
+      <p class="sub">MRPA de 19/10 a 25/10 · protocolo 722</p>
+    </div>
+    <span class="save" id="save">Carregando…</span>
+  </div>
+
+  <section class="summary" aria-live="polite">
+    <div>
+      <div class="sub">Média residencial (20/10 a 25/10)</div>
+      <div class="big"><span class="val" id="avg">—/—</span><span class="unit">mmHg</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Manhãs</div><div class="v" id="avgM">—</div></div>
+      <div class="stat"><div class="k">Noites</div><div class="v" id="avgN">—</div></div>
+      <div class="stat"><div class="k">Medidas</div><div class="v" id="cnt">0/24</div></div>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="verdict none" id="verdict">Preencha as medidas de 20/10 em diante para calcular a média.</div>
+  </section>
+
+  <div class="alert" id="warnStore" hidden>Este navegador não está salvando os dados. Abra o arquivo no Chrome (Android) ou no Safari, fora do modo anônimo.</div>
+
+  <nav class="tabs" role="tablist" id="tabs" aria-label="Dias"></nav>
+  <div id="days"></div>
+
+  <details id="pac">
+    <summary>Dados do paciente</summary>
+    <div class="dbody">
+      <label class="f">Paciente<input class="inp txt" id="p-nome" autocomplete="off"></label>
+      <div class="grid2">
+        <label class="f">Idade<input class="inp" id="p-idade" inputmode="numeric"></label>
+        <label class="f">Braço usado<select class="inp txt" id="p-braco"><option value=""></option><option>Direito</option><option>Esquerdo</option></select></label>
+      </div>
+      <label class="f">Aparelho (marca/modelo)<input class="inp txt" id="p-aparelho" autocomplete="off"></label>
+      <label class="f">Circunferência do braço / manguito<input class="inp txt" id="p-manguito" autocomplete="off"></label>
+      <label class="f">Medicação anti-hipertensiva (nome, dose, horário)<textarea class="inp txt" id="p-med" rows="2"></textarea></label>
+    </div>
+  </details>
+
+  <details>
+    <summary>Como medir</summary>
+    <div class="dbody">
+      <ol>
+        <li>Aparelho automático de braço, validado, com manguito do tamanho certo. Não usar aparelho de pulso.</li>
+        <li><b>Manhã:</b> ao acordar, após urinar, antes do café e da medicação. <b>Noite:</b> antes do jantar.</li>
+        <li>Nos 30 minutos antes: sem café, cigarro, álcool ou exercício.</li>
+        <li>Sentado, costas apoiadas, pés no chão, pernas descruzadas, braço apoiado na altura do coração.</li>
+        <li>Repousar 5 minutos em silêncio e não conversar durante a medida.</li>
+        <li>Fazer 2 medidas com 1 minuto de intervalo e anotar as duas como aparecem no visor.</li>
+        <li>Usar sempre o mesmo braço e horários parecidos.</li>
+      </ol>
+    </div>
+  </details>
+
+  <details>
+    <summary>Interpretação e alerta</summary>
+    <div class="dbody">
+      <div class="tw"><table class="ref">
+        <tr><th>Diretriz</th><th>Normal</th><th>Alterado</th></tr>
+        <tr><td>SBC (MRPA)</td><td>&lt;130/80</td><td>≥130 e/ou ≥80</td></tr>
+        <tr><td>AHA/ACC 2025</td><td>&lt;120/80</td><td>≥130/80 (estágio 1)</td></tr>
+        <tr><td>ESH / NICE</td><td>&lt;130/80</td><td>≥135 e/ou ≥85</td></tr>
+      </table></div>
+      <ul>
+        <li>PA ≥180/120: repetir após 5 minutos de repouso e comunicar a equipe.</li>
+        <li>PA elevada com dor no peito, falta de ar, alteração visual, fraqueza ou dificuldade para falar: emergência, SAMU 192.</li>
+        <li>O diagnóstico e a conduta cabem ao médico.</li>
+      </ul>
+      <p class="foot">Fontes: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9904446" target="_blank" rel="noopener">ESH 2021</a> · <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9532917/" target="_blank" rel="noopener">Protocolo 722</a> · <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13624793/" target="_blank" rel="noopener">AHA/ACC 2025</a> · <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9363073/" target="_blank" rel="noopener">SBC – MRPA</a></p>
+    </div>
+  </details>
+  <details>
+    <summary>Enviar e fazer backup</summary>
+    <div class="dbody">
+      <p class="foot" style="margin:0">Os dados ficam salvos neste navegador, neste aparelho. Use o mesmo navegador sempre e não limpe os dados de navegação. Faça um backup no fim de cada dia.</p>
+      <div class="btns">
+        <button class="btn primary" type="button" id="btnReport">Enviar relatório</button>
+        <button class="btn" type="button" id="btnCopyReport">Copiar relatório</button>
+        <button class="btn" type="button" id="btnBackup">Baixar backup</button>
+        <label class="btn" for="fileRestore">Restaurar backup<input type="file" id="fileRestore" accept="application/json,.json" hidden></label>
+      </div>
+      <p class="foot" id="restoreMsg" style="margin:0"></p>
+      <textarea class="inp txt" id="backupBox" rows="6" hidden aria-label="Texto para copiar"></textarea>
+      <button class="btn danger" type="button" id="btnClear">Apagar todos os dados</button>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+  var DAYS=[
+    {d:19,w:"Seg",full:"Segunda, 19/10",iso:"2026-10-19",skip:true},
+    {d:20,w:"Ter",full:"Terça, 20/10",iso:"2026-10-20"},
+    {d:21,w:"Qua",full:"Quarta, 21/10",iso:"2026-10-21"},
+    {d:22,w:"Qui",full:"Quinta, 22/10",iso:"2026-10-22"},
+    {d:23,w:"Sex",full:"Sexta, 23/10",iso:"2026-10-23"},
+    {d:24,w:"Sáb",full:"Sábado, 24/10",iso:"2026-10-24"},
+    {d:25,w:"Dom",full:"Domingo, 25/10",iso:"2026-10-25"}
+  ];
+  var PER=[{k:"m",name:"Manhã",when:"Ao acordar, antes do café e da medicação"},{k:"n",name:"Noite",when:"Antes do jantar"}];
+  var FIELDS=["hora","s1","d1","s2","d2","fc","obs"];
+  var PFIELDS=["nome","idade","braco","aparelho","manguito","med"];
+  var LS="mapa-pa-2026-10-19";
+  var state={p:{},r:{}};
+
+  function $(id){return document.getElementById(id)}
+  function num(v){var n=parseFloat(String(v||"").replace(",","."));return isFinite(n)&&n>0?n:null}
+  function rec(key){return state.r[key]||(state.r[key]={})}
+  function setSave(t,c){var s=$("save");s.textContent=t;s.className="save"+(c?" "+c:"")}
+
+  // ---------- Build UI ----------
+  var tabs=$("tabs"), days=$("days");
+  DAYS.forEach(function(D,i){
+    var b=document.createElement("button");
+    b.className="tab";b.id="tab-"+D.d;b.setAttribute("role","tab");b.type="button";
+    b.innerHTML='<span class="dw">'+D.w+'</span><span class="dn">'+D.d+'</span><span class="dots"><b id="dot-'+D.d+'m"></b><b id="dot-'+D.d+'n"></b></span>';
+    b.addEventListener("click",function(){select(i)});
+    tabs.appendChild(b);
+
+    var sec=document.createElement("section");
+    sec.className="day";sec.id="day-"+D.d;sec.setAttribute("role","tabpanel");sec.hidden=true;
+    var html='<h2>'+D.full+'</h2>';
+    if(D.skip) html+='<div class="note">Dia de adaptação: as medidas de hoje são registradas, mas não entram na média.</div>';
+    PER.forEach(function(P){
+      var k=D.d+P.k, id=function(f){return "r-"+k+"-"+f};
+      html+='<div class="card"><div class="card-h"><h2>'+P.name+'</h2><span class="when">'+P.when+'</span></div>'+
+        '<div class="grid2"><label class="f">Horário<input class="inp" type="time" id="'+id("hora")+'"></label>'+
+        '<label class="f">FC (bpm)<input class="inp" inputmode="numeric" id="'+id("fc")+'" placeholder="—"></label></div>'+
+        '<div class="row"><span class="lbl"></span><span class="f" style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">PAS</span><span class="f" style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">PAD</span></div>'+
+        '<div class="row"><span class="lbl">1ª medida</span><input class="inp" inputmode="numeric" aria-label="1ª medida PAS" id="'+id("s1")+'" placeholder="120"><input class="inp" inputmode="numeric" aria-label="1ª medida PAD" id="'+id("d1")+'" placeholder="80"></div>'+
+        '<div class="row"><span class="lbl">2ª medida<br><small>após 1 min</small></span><input class="inp" inputmode="numeric" aria-label="2ª medida PAS" id="'+id("s2")+'" placeholder="120"><input class="inp" inputmode="numeric" aria-label="2ª medida PAD" id="'+id("d2")+'" placeholder="80"></div>'+
+        '<label class="chk"><input type="checkbox" id="'+id("med")+'"> Tomou a medicação depois da medida</label>'+
+        '<label class="f">Observações<textarea class="inp txt" rows="2" id="'+id("obs")+'" placeholder="Sintomas, dor, estresse, esqueceu remédio…"></textarea></label>'+
+        '<div class="alert" id="alert-'+k+'" hidden>PA muito elevada (≥180/120). Repita após 5 minutos de repouso e comunique a equipe. Com sintomas, ligue 192.</div>'+
+        '</div>';
+    });
+    sec.innerHTML=html;
+    days.appendChild(sec);
+
+    PER.forEach(function(P){
+      var k=D.d+P.k;
+      FIELDS.forEach(function(f){
+        var el=$("r-"+k+"-"+f);
+        el.addEventListener("input",function(){rec(k)[f]=el.value;changed(k)});
+      });
+      var c=$("r-"+k+"-med");
+      c.addEventListener("change",function(){rec(k).med=c.checked;changed(k)});
+    });
+  });
+  PFIELDS.forEach(function(f){
+    var el=$("p-"+f);
+    el.addEventListener("input",function(){state.p[f]=el.value;changed()});
+    el.addEventListener("change",function(){state.p[f]=el.value;changed()});
+  });
+
+  var current=0;
+  function select(i){
+    current=i;
+    DAYS.forEach(function(D,j){
+      $("tab-"+D.d).setAttribute("aria-selected",String(i===j));
+      $("day-"+D.d).hidden=i!==j;
+    });
+    try{localStorage.setItem(LS+"-tab",String(i))}catch(e){}
+  }
+
+  // ---------- Fill & compute ----------
+  function fill(){
+    PFIELDS.forEach(function(f){var el=$("p-"+f);if(document.activeElement!==el)el.value=state.p[f]||""});
+    DAYS.forEach(function(D){PER.forEach(function(P){
+      var k=D.d+P.k, r=state.r[k]||{};
+      FIELDS.forEach(function(f){var el=$("r-"+k+"-"+f);if(document.activeElement!==el)el.value=r[f]||""});
+      $("r-"+k+"-med").checked=!!r.med;
+    })});
+    compute();
+  }
+
+  function compute(){
+    var all={s:[],d:[]},m={s:[],d:[]},n={s:[],d:[]};
+    DAYS.forEach(function(D){PER.forEach(function(P){
+      var k=D.d+P.k, r=state.r[k]||{}, filled=0, high=false;
+      [["s1","d1"],["s2","d2"]].forEach(function(p){
+        var s=num(r[p[0]]),d=num(r[p[1]]);
+        if(s!==null&&d!==null){
+          filled++;
+          if(s>=180||d>=120) high=true;
+          if(!D.skip){all.s.push(s);all.d.push(d);var t=P.k==="m"?m:n;t.s.push(s);t.d.push(d)}
+        }
+      });
+      $("dot-"+k).className=filled===2?"on":"";
+      $("alert-"+k).hidden=!high;
+    })});
+    function avg(a){return a.length?Math.round(a.reduce(function(x,y){return x+y},0)/a.length):null}
+    function pair(t){var s=avg(t.s),d=avg(t.d);return s===null?"—":s+"/"+d}
+    $("avg").textContent=all.s.length?pair(all):"—/—";
+    $("avgM").textContent=pair(m);
+    $("avgN").textContent=pair(n);
+    $("cnt").textContent=all.s.length+"/24";
+    $("bar").style.width=Math.min(100,all.s.length/24*100)+"%";
+    var v=$("verdict"), S=avg(all.s), Dd=avg(all.d);
+    if(S===null){v.className="verdict none";v.textContent="Preencha as medidas de 20/10 em diante para calcular a média."}
+    else if(all.s.length<12){v.className="verdict none";v.textContent="Média parcial com "+all.s.length+" medidas. O ideal são 24 (mínimo de 3 dias completos)."}
+    else if(S>=135||Dd>=85){v.className="verdict crit";v.textContent="Média acima de 135/85: alterada pela SBC, AHA/ACC, ESH e NICE. Levar o mapa para avaliação médica."}
+    else if(S>=130||Dd>=80){v.className="verdict warn";v.textContent="Média entre 130/80 e 135/85: alterada pela SBC e AHA/ACC (estágio 1). Levar o mapa para avaliação médica."}
+    else {v.className="verdict ok";v.textContent="Média abaixo de 130/80: dentro do limite de normalidade da MRPA pela SBC."}
+  }
+
+  // ---------- Salvamento no próprio aparelho ----------
+  function changed(){
+    compute();
+    try{localStorage.setItem(LS,JSON.stringify(state));setSave("Salvo","ok")}
+    catch(e){setSave("Não salvou","err")}
+  }
+
+  try{var l=JSON.parse(localStorage.getItem(LS)||"null");if(l&&l.r)state=l}catch(e){}
+  var t0=0;try{var tt=parseInt(localStorage.getItem(LS+"-tab"),10);if(tt>=0&&tt<7)t0=tt}catch(e){}
+  var today=new Date(), ti=-1;
+  DAYS.forEach(function(D,i){var dd=new Date(D.iso+"T12:00:00");if(dd.toDateString()===today.toDateString())ti=i});
+  select(ti>=0?ti:t0);
+  fill();
+  try{localStorage.setItem(LS+"-teste","1");localStorage.removeItem(LS+"-teste");setSave("Salvo","ok")}
+  catch(e){setSave("Sem salvamento","err");$("warnStore").hidden=false}
+
+  // ---------- Relatório e backup ----------
+  function report(){
+    var L=["MAPA DE PA (MRPA) – 19/10 a 25/10/2026","Protocolo 722: 2 medidas manhã + 2 noite, 1 min de intervalo"];
+    var p=state.p||{};
+    L.push("Paciente: "+(p.nome||"-")+(p.idade?" | Idade: "+p.idade:"")+(p.braco?" | Braço: "+p.braco:""));
+    if(p.aparelho) L.push("Aparelho: "+p.aparelho);
+    if(p.manguito) L.push("Manguito: "+p.manguito);
+    if(p.med) L.push("Medicação: "+p.med);
+    L.push("");
+    DAYS.forEach(function(D){PER.forEach(function(P){
+      var r=state.r[D.d+P.k]||{};
+      var a=(r.s1||"-")+"/"+(r.d1||"-"), b=(r.s2||"-")+"/"+(r.d2||"-");
+      L.push(D.d+"/10 "+P.name+(r.hora?" "+r.hora:"")+": "+a+" e "+b+(r.fc?" | FC "+r.fc:"")+(r.med?" | med. após":"")+(r.obs?" | "+r.obs:"")+(D.skip?" (descartado)":""));
+    })});
+    L.push("");
+    L.push("Média 20–25/10: "+$("avg").textContent+" mmHg ("+$("cnt").textContent+" medidas)");
+    L.push("Manhãs: "+$("avgM").textContent+" | Noites: "+$("avgN").textContent);
+    return L.join("\n");
+  }
+  function copyText(txt,btn){
+    var done=function(){var o=btn.textContent;btn.textContent="Copiado";setTimeout(function(){btn.textContent=o},1600)};
+    var fallback=function(){var t=$("backupBox");t.hidden=false;t.value=txt;t.focus();t.select();try{document.execCommand("copy");done()}catch(e){}};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,fallback)}else fallback();
+  }
+  $("btnReport").addEventListener("click",function(){
+    var txt=report();
+    if(navigator.share){navigator.share({title:"Mapa de PA",text:txt}).catch(function(){})}
+    else copyText(txt,this);
+  });
+  $("btnCopyReport").addEventListener("click",function(){copyText(report(),this)});
+  $("btnBackup").addEventListener("click",function(){
+    var blob=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mapa-pa-backup.json";
+    document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+  });
+  $("fileRestore").addEventListener("change",function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var rd=new FileReader();
+    rd.onload=function(){try{var d=JSON.parse(rd.result);if(!d||!d.r)throw 0;state={p:d.p||{},r:d.r};fill();changed();$("restoreMsg").textContent="Backup restaurado."}
+      catch(e){$("restoreMsg").textContent="Arquivo inválido. Escolha o mapa-pa-backup.json."}};
+    rd.readAsText(f);this.value="";
+  });
+  var armed=false;
+  $("btnClear").addEventListener("click",function(){
+    if(!armed){armed=true;this.textContent="Toque de novo para apagar tudo";var b=this;setTimeout(function(){armed=false;b.textContent="Apagar todos os dados"},4000);return}
+    state={p:{},r:{}};fill();changed();this.textContent="Dados apagados";armed=false;
+  });
+})();
+</script>
+</body>
+</html>
